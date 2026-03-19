@@ -1,6 +1,6 @@
 import functools
 
-from cacher.backends.memory import MemoryBackend
+from cacher.backends import MemoryBackend
 from cacher.utils import generate_cache_key
 
 def cache(func=None, *, a=None, b=None):
