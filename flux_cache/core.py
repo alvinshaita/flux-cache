@@ -1,8 +1,8 @@
 import functools
 from typing import Callable, Optional
 
-from flux_cache.backends import MemoryBackend
-from flux_cache.utils import generate_cache_key
+from .backends import MemoryBackend
+from .utils import generate_cache_key
 
 def cache(
 	func: Optional[Callable] = None,

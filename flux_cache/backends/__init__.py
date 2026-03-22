@@ -1,1 +1,1 @@
-from flux_cache.backends.memory import MemoryBackend
+from .memory import MemoryBackend

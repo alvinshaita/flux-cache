@@ -1,7 +1,7 @@
 import threading
 from typing import Any, Optional
 
-from flux_cache.backends.base import BaseBackend
+from .base import BaseBackend
 
 
 class MemoryBackend(BaseBackend):
