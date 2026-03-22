@@ -1,24 +1,25 @@
 from abc import ABC, abstractmethod
+from typing import Any, Optional
 
 
 class BaseBackend(ABC):
 
 	@abstractmethod
-	def has(self, key):
+	def has(self, key: str) -> bool:
 		pass
 
 	@abstractmethod
-	def get(self, key):
+	def get(self, key: str) -> Optional[Any]:
 		pass
 
 	@abstractmethod
-	def set(self, key, value):
+	def set(self, key: str, value: Any) -> None:
 		pass
 
 	@abstractmethod
-	def delete(self, key):
+	def delete(self, key: str) -> None:
 		pass
 
 	@abstractmethod
-	def clear(self):
+	def clear(self) -> None:
 		pass
