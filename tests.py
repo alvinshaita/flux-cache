@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from flux_cache import cache
+from flux_cache.backends import MemoryBackend
 
 
 class TestCacheDecorator(unittest.TestCase):
@@ -88,7 +89,7 @@ class TestCacheDecorator(unittest.TestCase):
     def test_decorator_with_parameters(self):
         self.backend_instance.has.return_value = False
 
-        @cache(a=1, b=2)
+        @cache(backend=self.backend_instance)
         def subtract(x, y):
             return x - y
 
