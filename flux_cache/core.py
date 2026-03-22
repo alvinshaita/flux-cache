@@ -1,7 +1,7 @@
 import functools
 
-from cacher.backends import MemoryBackend
-from cacher.utils import generate_cache_key
+from flux_cache.backends import MemoryBackend
+from flux_cache.utils import generate_cache_key
 
 def cache(func=None, *, a=None, b=None):
 	backend = MemoryBackend()
