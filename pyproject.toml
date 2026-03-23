@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flux-cache"
+version = "0.1.0"
+description = "Caching library for Python with sync and async support"
+readme = "README.md"
+authors = [
+    { name="Alvin Shaita", email="alvinshaita@gmail.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.8"
+
+dependencies = []
+
+keywords = ["cache", "caching", "async", "performance"]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+redis = ["redis>=5.0.0"]
+
+[project.urls]
+"Homepage" = "https://github.com/alvinshaita/flux-cache"
+"Source" = "https://github.com/alvinshaita/flux-cache"
