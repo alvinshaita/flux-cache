@@ -24,7 +24,7 @@ class TestCacheDecorator(unittest.TestCase):
         self.key_patcher.stop()
 
     def test_cache_miss_calls_function_and_sets_cache(self):
-        self.backend_instance.has.return_value = False
+        self.backend_instance.get.return_value = None
 
         @cache
         def add(x, y):
@@ -33,11 +33,10 @@ class TestCacheDecorator(unittest.TestCase):
         result = add(2, 3)
 
         self.assertEqual(result, 5)
-        self.backend_instance.set.assert_called_once_with("test-key", 5)
+        self.backend_instance.set.assert_called_once_with("test-key", 5, ttl=None)
 
     def test_cache_hit_returns_cached_value(self):
-        self.backend_instance.has.return_value = True
-        self.backend_instance.get.return_value = 42
+        self.backend_instance.get.return_value = 42, None
 
         @cache
         def add(x, y):
@@ -71,7 +70,7 @@ class TestCacheDecorator(unittest.TestCase):
 
     # key generation
     def test_generate_cache_key_called_correctly(self):
-        self.backend_instance.has.return_value = False
+        self.backend_instance.get.return_value = None
 
         @cache
         def multiply(a, b):
@@ -87,7 +86,7 @@ class TestCacheDecorator(unittest.TestCase):
 
     # decorator with params
     def test_decorator_with_parameters(self):
-        self.backend_instance.has.return_value = False
+        self.backend_instance.get.return_value = None
 
         @cache(backend=self.backend_instance)
         def subtract(x, y):
