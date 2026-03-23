@@ -7,23 +7,26 @@ from .utils import generate_cache_key
 def cache(
 	func: Optional[Callable] = None,
 	*,
+	ttl: Optional[int] = None,
 	backend = None
 ):
 	if backend is None:
 		backend = MemoryBackend()
 
 	if func is None:
-		return lambda f: cache(f, backend=backend)
+		return lambda f: cache(f, ttl=ttl, backend=backend)
 
 	@functools.wraps(func)
 	def wrapper(*args, **kwargs):
 		key = generate_cache_key(func, args, kwargs)
 
-		if backend.has(key):
-			return backend.get(key)
+		item = backend.get(key)
+		if item:
+			value, _ = item
+			return value
 
 		result = func(*args, **kwargs)
-		backend.set(key, result)
+		backend.set(key, result, ttl=ttl)
 
 		return result
 
@@ -43,23 +46,26 @@ def cache(
 def async_cache(
 	func: Optional[Callable] = None,
 	*,
+	ttl: Optional[int] = None,
 	backend = None
 ):
 	if backend is None:
 		backend = MemoryBackend()
 
 	if func is None:
-		return lambda f: async_cache(f, backend=backend)
+		return lambda f: async_cache(f, ttl=ttl, backend=backend)
 
 	@functools.wraps(func)
 	async def wrapper(*args, **kwargs):
 		key = generate_cache_key(func, args, kwargs)
 
-		if backend.has(key):
-			return backend.get(key)
+		item = backend.get(key)
+		if item:
+			value, _ = item
+			return value
 
 		result = await func(*args, **kwargs)
-		backend.set(key, result)
+		backend.set(key, result, ttl=ttl)
 
 		return result
 
