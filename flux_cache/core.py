@@ -38,3 +38,39 @@ def cache(
 	wrapper.invalidate = invalidate
 
 	return wrapper
+
+
+def async_cache(
+	func: Optional[Callable] = None,
+	*,
+	backend = None
+):
+	if backend is None:
+		backend = MemoryBackend()
+
+	if func is None:
+		return lambda f: async_cache(f, backend=backend)
+
+	@functools.wraps(func)
+	async def wrapper(*args, **kwargs):
+		key = generate_cache_key(func, args, kwargs)
+
+		if backend.has(key):
+			return backend.get(key)
+
+		result = await func(*args, **kwargs)
+		backend.set(key, result)
+
+		return result
+
+	def clear():
+		backend.clear()
+
+	def invalidate(*args, **kwargs):
+		key = generate_cache_key(func, args, kwargs)
+		backend.delete(key)
+
+	wrapper.clear = clear
+	wrapper.invalidate = invalidate
+
+	return wrapper
