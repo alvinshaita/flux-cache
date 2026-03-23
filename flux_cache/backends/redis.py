@@ -1,5 +1,4 @@
 import json
-import redis
 import threading
 import time
 from typing import Any, Optional
@@ -9,6 +8,13 @@ from .base import BaseBackend
 
 class RedisBackend(BaseBackend):
 	def __init__(self, url="redis://localhost:6379/0", prefix="flux-cache"):
+		try:
+			import redis
+		except ImportError:
+			raise ImportError(
+				"RedisBackend requires 'redis' package.\n"
+				"Install with: pip install flux-cache[redis]"
+			)
 		self.prefix = prefix
 		self.red = redis.Redis.from_url(url)
 
