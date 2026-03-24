@@ -25,7 +25,7 @@ def cache(
 			key = generate_cache_key(func, args, kwargs)
 
 			item = backend.get(key)
-			if item:
+			if item is not None:
 				value, _ = item
 				return value
 
@@ -40,7 +40,7 @@ def cache(
 			key = generate_cache_key(func, args, kwargs)
 
 			item = backend.get(key)
-			if item:
+			if item is not None:
 				value, _ = item
 				return value
 

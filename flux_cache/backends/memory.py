@@ -17,7 +17,7 @@ class MemoryBackend(BaseBackend):
 	def get(self, key: str) -> Optional[Any]:
 		with self._lock:
 			item = self.store.get(key)
-			if not item:
+			if item is None:
 				return None
 			
 			value, expires_at = item
