@@ -3,6 +3,7 @@ import inspect
 from typing import Callable, Optional
 
 from .backends import MemoryBackend
+from .stats import CacheStats
 from .utils import generate_cache_key
 
 def cache(
@@ -17,6 +18,8 @@ def cache(
 	if func is None:
 		return lambda f: cache(f, ttl=ttl, backend=backend)
 
+	stats = CacheStats()
+
 	is_async = inspect.iscoroutinefunction(func)
 
 	# asynchronous wrapper
@@ -26,9 +29,11 @@ def cache(
 
 		item = backend.get(key)
 		if item is not None:
+			stats.hit()
 			value, _ = item
 			return value
 
+		stats.miss()
 		result = await func(*args, **kwargs)
 		backend.set(key, result, ttl=ttl)
 		return result
@@ -40,9 +45,11 @@ def cache(
 
 		item = backend.get(key)
 		if item is not None:
+			stats.hit()
 			value, _ = item
 			return value
 
+		stats.miss()
 		result = func(*args, **kwargs)
 		backend.set(key, result, ttl=ttl)
 		return result
@@ -55,5 +62,6 @@ def cache(
 
 	wrapper.clear = backend.clear
 	wrapper.invalidate = invalidate
+	wrapper.stats = stats
 
 	return wrapper
