@@ -20,11 +20,11 @@ class MemoryBackend(BaseBackend):
 
 	def get(self, key: str) -> Optional[Any]:
 		with self._lock:
-			item = self.store.get(key)
-			if item is None:
+			cached = self.store.get(key)
+			if cached is None:
 				return None
 			
-			value, expires_at = item
+			value, expires_at = cached
 			if expires_at and expires_at < time.time():
 				self.store.pop(key, None)
 				return None

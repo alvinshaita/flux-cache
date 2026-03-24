@@ -27,10 +27,10 @@ def cache(
 	async def async_wrapper(*args, **kwargs):
 		key = generate_cache_key(func, args, kwargs)
 
-		item = backend.get(key)
-		if item is not None:
+		cached = backend.get(key)
+		if cached is not None:
 			stats.hit()
-			value, _ = item
+			value, _ = cached
 			return value
 
 		stats.miss()
@@ -43,10 +43,10 @@ def cache(
 	def sync_wrapper(*args, **kwargs):
 		key = generate_cache_key(func, args, kwargs)
 
-		item = backend.get(key)
-		if item is not None:
+		cached = backend.get(key)
+		if cached is not None:
 			stats.hit()
-			value, _ = item
+			value, _ = cached
 			return value
 
 		stats.miss()
