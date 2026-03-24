@@ -4,10 +4,14 @@ import time
 from typing import Any, Optional
 
 from .base import BaseBackend
+from ..serializers import PickleSerializer
 
 
 class RedisBackend(BaseBackend):
-	def __init__(self, url="redis://localhost:6379/0", prefix="flux-cache"):
+	def __init__(self,
+		url="redis://localhost:6379/0",
+		serializer=None,
+	):
 		try:
 			import redis
 		except ImportError:
@@ -15,20 +19,9 @@ class RedisBackend(BaseBackend):
 				"RedisBackend requires 'redis' package.\n"
 				"Install with: pip install flux-cache[redis]"
 			)
-		self.prefix = prefix
+		self.prefix = "flux-cache"
 		self.red = redis.Redis.from_url(url)
-
-	def _serialize(self, value: Any) -> bytes:
-		return json.dumps(value)
-
-	def _deserialize(self, value: Optional[bytes]) -> Any:
-		if value is None:
-			return None
-
-		try:
-			return json.loads(value)
-		except:
-			return value
+		self.serializer = serializer or PickleSerializer()
 
 	def _key(self, key: str) -> str:
 		return f"{self.prefix}:{key}"
@@ -44,11 +37,11 @@ class RedisBackend(BaseBackend):
 		if value is None:
 			return None
 
-		deserialized_value = self._deserialize(value)
+		deserialized_value = self.serializer.loads(value)
 		return deserialized_value, None
 
 	def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
-		serialized_value = self._serialize(value)
+		serialized_value = self.serializer.dumps(value)
 		namespaced_key = self._key(key)
 		self.red.set(namespaced_key, serialized_value, ex=ttl)
 

@@ -3,11 +3,15 @@ import time
 from typing import Any, Optional
 
 from .base import BaseBackend
+from ..serializers import PickleSerializer
 
 
 class MemoryBackend(BaseBackend):
-	def __init__(self):
+	def __init__(self,
+		serializer=None,
+	):
 		self.store = {}
+		self.serializer = serializer or PickleSerilizer()
 		self._lock = threading.RLock()
 
 	def has(self, key: str) -> bool:
@@ -25,12 +29,16 @@ class MemoryBackend(BaseBackend):
 				self.store.pop(key, None)
 				return None
 
-			return value, expires_at
+			deserialized_value = self.serializer.loads(value)
+
+			return deserialized_value, expires_at
 
 	def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
 		with self._lock:
+			serilized_value = self.serializer.dumps(value)
 			expires_at = time.time() + ttl if ttl else None
-			self.store[key] = (value, expires_at)
+
+			self.store[key] = (serilized_value, expires_at)
 
 	def delete(self, key: str) -> None:
 		with self._lock:
