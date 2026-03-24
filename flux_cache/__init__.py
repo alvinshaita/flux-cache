@@ -1,1 +1,1 @@
-from .core import async_cache, cache
+from .core import cache
