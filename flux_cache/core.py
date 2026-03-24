@@ -1,4 +1,5 @@
 import functools
+import inspect
 from typing import Callable, Optional
 
 from .backends import MemoryBackend
@@ -16,19 +17,37 @@ def cache(
 	if func is None:
 		return lambda f: cache(f, ttl=ttl, backend=backend)
 
-	@functools.wraps(func)
-	def wrapper(*args, **kwargs):
-		key = generate_cache_key(func, args, kwargs)
+	is_async = inspect.iscoroutinefunction(func)
+	if is_async:
 
-		item = backend.get(key)
-		if item:
-			value, _ = item
-			return value
+		@functools.wraps(func)
+		async def wrapper(*args, **kwargs):
+			key = generate_cache_key(func, args, kwargs)
 
-		result = func(*args, **kwargs)
-		backend.set(key, result, ttl=ttl)
+			item = backend.get(key)
+			if item:
+				value, _ = item
+				return value
 
-		return result
+			result = await func(*args, **kwargs)
+			backend.set(key, result, ttl=ttl)
+
+			return result
+	else:
+		
+		@functools.wraps(func)
+		def wrapper(*args, **kwargs):
+			key = generate_cache_key(func, args, kwargs)
+
+			item = backend.get(key)
+			if item:
+				value, _ = item
+				return value
+
+			result = func(*args, **kwargs)
+			backend.set(key, result, ttl=ttl)
+
+			return result
 
 	def clear():
 		backend.clear()
