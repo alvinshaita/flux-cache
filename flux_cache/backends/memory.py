@@ -11,7 +11,7 @@ class MemoryBackend(BaseBackend):
 		serializer=None,
 	):
 		self.store = {}
-		self.serializer = serializer or PickleSerilizer()
+		self.serializer = serializer or PickleSerializer()
 		self._lock = threading.RLock()
 
 	def has(self, key: str) -> bool:
