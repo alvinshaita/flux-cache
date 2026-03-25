@@ -1,7 +1,7 @@
 from contextlib import contextmanager
 import threading
 
-class StampedeProtection:
+class SyncStampedeProtection:
 	def __init__(self):
 		self._global_lock = threading.Lock()
 		self._locks = {}

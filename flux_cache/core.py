@@ -4,7 +4,7 @@ from typing import Callable, Optional
 
 from .backends import MemoryBackend
 from .stats import CacheStats
-from .strategy import StampedeProtection, AsyncStampedeProtection
+from .strategy import AsyncStampedeProtection, SyncStampedeProtection
 from .utils import generate_cache_key
 
 def cache(
@@ -20,7 +20,7 @@ def cache(
 		return lambda f: cache(f, ttl=ttl, backend=backend)
 
 	stats = CacheStats()
-	stampede = StampedeProtection()
+	stampede = SyncStampedeProtection()
 	async_stampede = AsyncStampedeProtection()
 
 	is_async = inspect.iscoroutinefunction(func)
