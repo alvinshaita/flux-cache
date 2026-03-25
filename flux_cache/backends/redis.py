@@ -6,15 +6,18 @@ from typing import Any, Optional
 from .base import BaseBackend
 from ..serializers import PickleSerializer
 
+try:
+	import redis
+except ImportError:
+	redis = None
+
 
 class RedisBackend(BaseBackend):
 	def __init__(self,
 		url="redis://localhost:6379/0",
 		serializer=None,
 	):
-		try:
-			import redis
-		except ImportError:
+		if redis is None:
 			raise ImportError(
 				"RedisBackend requires 'redis' package.\n"
 				"Install with: pip install flux-cache[redis]"
