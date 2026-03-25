@@ -100,7 +100,7 @@ Works for:
 Each cached function tracks performance:
 
 ```python
-@cache()
+@cache
 def slow():
     return "done"
 
@@ -198,6 +198,6 @@ MIT License
 
 ## Author
 
-**Alvin Rombora**
+**Alvin Shaita**
 
 ---
