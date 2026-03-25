@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 from .backends import MemoryBackend
 from .stats import CacheStats
+from .strategy import StampedeProtection, AsyncStampedeProtection
 from .utils import generate_cache_key
 
 def cache(
@@ -19,6 +20,8 @@ def cache(
 		return lambda f: cache(f, ttl=ttl, backend=backend)
 
 	stats = CacheStats()
+	stampede = StampedeProtection()
+	async_stampede = AsyncStampedeProtection()
 
 	is_async = inspect.iscoroutinefunction(func)
 
@@ -27,32 +30,34 @@ def cache(
 	async def async_wrapper(*args, **kwargs):
 		key = generate_cache_key(func, args, kwargs)
 
-		cached = backend.get(key)
-		if cached is not None:
-			stats.hit()
-			value, _ = cached
-			return value
+		async with async_stampede.lock(key):
+			cached = backend.get(key)
+			if cached is not None:
+				stats.hit()
+				value, _ = cached
+				return value
 
-		stats.miss()
-		result = await func(*args, **kwargs)
-		backend.set(key, result, ttl=ttl)
-		return result
+			stats.miss()
+			result = await func(*args, **kwargs)
+			backend.set(key, result, ttl=ttl)
+			return result
 
 	# synchronous wrapper
 	@functools.wraps(func)
 	def sync_wrapper(*args, **kwargs):
 		key = generate_cache_key(func, args, kwargs)
 
-		cached = backend.get(key)
-		if cached is not None:
-			stats.hit()
-			value, _ = cached
-			return value
+		with stampede.lock(key):
+			cached = backend.get(key)
+			if cached is not None:
+				stats.hit()
+				value, _ = cached
+				return value
 
-		stats.miss()
-		result = func(*args, **kwargs)
-		backend.set(key, result, ttl=ttl)
-		return result
+			stats.miss()
+			result = func(*args, **kwargs)
+			backend.set(key, result, ttl=ttl)
+			return result
 
 	wrapper = async_wrapper if is_async else sync_wrapper
 
