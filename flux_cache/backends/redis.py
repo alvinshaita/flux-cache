@@ -14,7 +14,11 @@ except ImportError:
 
 class RedisBackend(BaseBackend):
 	def __init__(self,
-		url="redis://localhost:6379/0",
+		url=None, # default: "redis://localhost:6379/0"
+		host="localhost",
+		port=6379,
+		db=0,
+		password=None,
 		serializer=None,
 	):
 		if redis is None:
@@ -23,8 +27,17 @@ class RedisBackend(BaseBackend):
 				"Install with: pip install flux-cache[redis]"
 			)
 		self.prefix = "flux-cache"
-		self.red = redis.Redis.from_url(url)
 		self.serializer = serializer or PickleSerializer()
+
+		if url:
+			self.red = redis.Redis.from_url(url)
+		else:
+			self.red = redis.Redis(
+				host=host,
+				port=port,
+				db=db,
+				password=password
+			)
 
 	def _key(self, key: str) -> str:
 		return f"{self.prefix}:{key}"
