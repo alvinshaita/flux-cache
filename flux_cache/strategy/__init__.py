@@ -1,0 +1,1 @@
+from .stampede import StampedeProtection
